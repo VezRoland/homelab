@@ -1,0 +1,26 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    networks:
+      - traefik
+    environment:
+      - "ICON_SERVICE=internal"
+      - "ICON_REDIRECT=false"
+      - "ICON_CACHE_TTL=2592000"
+      - "ICON_DOWNLOAD_TIMEOUT=30"
+      - "ICON_BLACKLIST_NON_GLOBAL_IPS=false"
+    volumes:
+      - ./data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vaultwarden.rule=Host(`${VAULTWARDEN_HOSTNAME}`)"
+      - "traefik.http.routers.vaultwarden.entrypoints=websecure"
+      - "traefik.http.routers.vaultwarden.tls=true"
+      - "traefik.http.routers.vaultwarden.tls.certresolver=cloudflare"
+
+networks:
+  traefik:
+    external: true
+
