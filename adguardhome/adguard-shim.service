@@ -1,0 +1,24 @@
+[Unit]
+Description=Dynamic Macvlan Shim for AdGuard Home
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment="FIND_IFACE=ip route show default | awk '/default/ {print $5}'"
+
+ExecStart=/bin/bash -c '\
+    IFACE=$$(eval $FIND_IFACE); \
+    /usr/sbin/ip link add adguard-shim link $$IFACE type macvlan mode bridge; \
+    /usr/sbin/ip addr add 192.168.0.99/32 dev adguard-shim; \
+    /usr/sbin/ip link set adguard-shim up; \
+    /usr/sbin/ip route add 192.168.0.10 dev adguard-shim'
+
+RemainAfterExit=yes
+
+ExecStop=/bin/bash -c '\
+    /usr/sbin/ip route del 192.168.0.10 dev adguard-shim; \
+    /usr/sbin/ip link del adguard-shim'
+
+[Install]
+WantedBy=multi-user.target
