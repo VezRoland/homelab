@@ -26,15 +26,16 @@ services:
       interval: 30s
       retries: 3
     volumes:
-      - ./data:/data
-      - ./config:/config:ro
+      - ./data/data:/data
+      - ./data/config:/config:ro
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.radicale.rule=Host(`${RADICALE_HOSTNAME}`)"
-      - "traefik.http.routers.radicale.entrypoints=websecure"
-      - "traefik.http.routers.radicale.tls=true"
-      - "traefik.http.routers.radicale.tls.certResolver=cloudflare"
-      - "traefik.http.services.radicale.loadbalancer.server.port=5232"
+      - traefik.enable=true
+      - traefik.http.routers.radicale.rule=Host(`${RADICALE_HOSTNAME}`)
+      - traefik.http.routers.radicale.entrypoints=websecure
+      - traefik.http.routers.radicale.tls=true
+      - traefik.http.routers.radicale.tls.certResolver=cloudflare
+      - traefik.http.services.radicale.loadbalancer.server.port=5232
+      - docker-volume-backup.stop-during-backup=true
 
 networks:
   traefik:

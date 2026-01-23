@@ -33,14 +33,15 @@ services:
       - "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
       - "--certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_HOSTNAME}`)"
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.routers.dashboard.tls.certresolver=cloudflare"
-      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_BASICAUTH_USERS}"
-      - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
+      - traefik.enable=true
+      - traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_HOSTNAME}`)
+      - traefik.http.routers.dashboard.entrypoints=websecure
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.routers.dashboard.tls=true
+      - traefik.http.routers.dashboard.tls.certresolver=cloudflare
+      - traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_BASICAUTH_USERS}
+      - traefik.http.routers.dashboard.middlewares=dashboard-auth@docker
+      - docker-volume-backup.stop-during-backup=true
 
 networks:
   traefik:
