@@ -25,7 +25,7 @@ services:
       - "--providers.docker.network=traefik"
       - "--api.dashboard=true"
       - "--api.insecure=false"
-      - "--log.level=INFO"
+      - "--log.level=DEBUG"
       - "--accesslog=true"
       - "--metrics.prometheus=true"
       - "--certificatesresolvers.cloudflare.acme.email=${TRAEFIK_LETSENCRYPT_EMAIL}"
