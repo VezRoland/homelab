@@ -1,0 +1,30 @@
+services:
+  obsidian-livesync:
+    image: couchdb:3.5.1
+    container_name: obsidian-livesync
+    restart: unless-stopped
+    user: 5984:5984
+    env_file: ./.env
+    networks:
+      - traefik
+    volumes:
+      - ./data/data:/opt/couchdb/data
+      - ./data/etc:/opt/couchdb/etc/local.d
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.obsidian-livesync.rule=Host(`${COUCHDB_HOSTNAME}`)
+      - traefik.http.routers.obsidian-livesync.entrypoints=websecure
+      - traefik.http.routers.obsidian-livesync.tls=true
+      - traefik.http.routers.obsidian-livesync.tls.certresolver=cloudflare
+      - traefik.http.services.obsidian-livesync.loadbalancer.server.port=5984
+      - traefik.http.routers.obsidian-livesync.middlewares=obsidiancors
+      - traefik.http.middlewares.obsidiancors.headers.accesscontrolallowmethods=GET,PUT,POST,HEAD,DELETE
+      - traefik.http.middlewares.obsidiancors.headers.accesscontrolallowheaders=accept,authorization,content-type,origin,referer
+      - traefik.http.middlewares.obsidiancors.headers.accesscontrolalloworiginlist=app://obsidian.md,capacitor://localhost,http://localhost
+      - traefik.http.middlewares.obsidiancors.headers.accesscontrolmaxage=3600
+      - traefik.http.middlewares.obsidiancors.headers.addvaryheader=true
+      - traefik.http.middlewares.obsidiancors.headers.accessControlAllowCredentials=true
+
+networks:
+  traefik:
+    external: true
