@@ -1,20 +1,28 @@
 services:
   traefik:
-    image: traefik:v3.6
     container_name: traefik
+    image: traefik:v3.6
     restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     ports:
       - "80:80"
       - "443:443"
-    networks:
-      - traefik
-    environment:
-      - "CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./data/certs:/var/traefik/certs
+    environment:
+      - "CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}"
+    networks:
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_HOSTNAME}`)
+      - traefik.http.routers.dashboard.entrypoints=websecure
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.routers.dashboard.tls=true
+      - traefik.http.routers.dashboard.tls.certresolver=cloudflare
+      - traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_BASICAUTH_USERS}
+      - traefik.http.routers.dashboard.middlewares=dashboard-auth@docker
+      - docker-volume-backup.stop-during-backup=true
     command:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
@@ -36,16 +44,8 @@ services:
       - "--certificatesresolvers.cloudflare.acme.storage=/var/traefik/certs/cloudflare-acme.json"
       - "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
       - "--certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_HOSTNAME}`)
-      - traefik.http.routers.dashboard.entrypoints=websecure
-      - traefik.http.routers.dashboard.service=api@internal
-      - traefik.http.routers.dashboard.tls=true
-      - traefik.http.routers.dashboard.tls.certresolver=cloudflare
-      - traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_BASICAUTH_USERS}
-      - traefik.http.routers.dashboard.middlewares=dashboard-auth@docker
-      - docker-volume-backup.stop-during-backup=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   traefik:

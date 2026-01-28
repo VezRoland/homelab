@@ -1,21 +1,8 @@
 services:
   offen:
-    image: offen/docker-volume-backup:v2.47.0
     container_name: offen
+    image: offen/docker-volume-backup:v2.47.0
     restart: always
-    env_file: ./.env
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          memory: 128M
-    healthcheck:
-      test: ["CMD-SHELL", "pgrep crond || exit 1"]
-      interval: 1m
-      timeout: 10s
-      retries: 3
     volumes:
       # --- Tailscale ---
       - ../tailscale/data:/backup/tailscale/data:ro
@@ -42,3 +29,16 @@ services:
 
       - ./data/archive:/archive
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    env_file: ./.env
+    healthcheck:
+      test: [ "CMD-SHELL", "pgrep crond || exit 1" ]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 128M

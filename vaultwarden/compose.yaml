@@ -1,18 +1,18 @@
 services:
   vaultwarden:
-    image: vaultwarden/server:latest
     container_name: vaultwarden
+    image: vaultwarden/server:latest
     restart: unless-stopped
-    networks:
-      - traefik
+    volumes:
+      - ./data:/data
     environment:
       - ICON_SERVICE=internal
       - ICON_REDIRECT=false
       - ICON_CACHE_TTL=2592000
       - ICON_DOWNLOAD_TIMEOUT=30
       - ICON_BLACKLIST_NON_GLOBAL_IPS=false
-    volumes:
-      - ./data:/data
+    networks:
+      - traefik
     labels:
       - traefik.enable=true
       - traefik.http.routers.vaultwarden.rule=Host(`${VAULTWARDEN_HOSTNAME}`)
@@ -24,4 +24,3 @@ services:
 networks:
   traefik:
     external: true
-
