@@ -1,0 +1,29 @@
+services:
+  backrest:
+    container_name: backrest
+    image: ghcr.io/garethgeorge/backrest:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/data:/data
+      - ./data/config:/config
+      - ./data/cache:/cache
+      - ./data/tmp:/tmp
+      - ./data/rclone:/root/.config/rclone
+      - ${BACKREST_BACKUP_PATH}:/userdata
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    networks:
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backrest.rule=Host(`${BACKREST_HOSTNAME}`)
+      - traefik.http.routers.backrest.entrypoints=websecure
+      - traefik.http.routers.backrest.tls=true
+      - traefik.http.routers.backrest.tls.certresolver=cloudflare
+      - traefik.http.services.backrest.loadbalancer.server.port=9898
+    hostname: backrest
+
+networks:
+  traefik:
+    external: true
