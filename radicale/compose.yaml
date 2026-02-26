@@ -4,8 +4,8 @@ services:
     image: tomsquest/docker-radicale
     restart: unless-stopped
     volumes:
-      - ./data/data:/data
-      - ./data/config:/config:ro
+      - ./data/radicale/data:/data
+      - ./data/radicale/config:/config:ro
     networks:
       - traefik
     labels:
@@ -36,6 +36,25 @@ services:
     read_only: true
     security_opt:
       - no-new-privileges:true
+
+  vdirsyncer:
+    container_name: vdirsyncer
+    image: bleala/vdirsyncer:latest
+    restart: unless-stopped
+    depends_on:
+      - radicale
+    volumes:
+      - vdirsyncer:/vdirsyncer
+      - ./data/vdirsyncer/config.ini:/vdirsyncer/config
+    env_file:
+      - .env
+    networks:
+      - traefik
+
+volumes:
+  vdirsyncer:
+    name: vdirsyncer
+    driver: local
 
 networks:
   traefik:
