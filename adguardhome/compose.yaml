@@ -4,15 +4,19 @@ services:
     image: adguard/adguardhome
     restart: unless-stopped
     ports:
-      - "443:443/udp"
       - "53:53/tcp"
       - "53:53/udp"
+      - "80:80/tcp"
+      - "443:443/tcp"
+      - "443:443/udp"
+      - "3000:3000/tcp"
       - "853:853/tcp"
     volumes:
       - ./data/work:/opt/adguardhome/work
       - ./data/conf:/opt/adguardhome/conf
     networks:
-      - traefik
+      adguard_net:
+        ipv4_address: ${ADGUARDHOME_IPV4_ADDRESS}
     labels:
       - traefik.enable=true
       - traefik.http.routers.adguardhome.rule=Host(`${ADGUARDHOME_HOSTNAME}`)
@@ -23,5 +27,12 @@ services:
       - docker-volume-backup.stop-during-backup=true
 
 networks:
-  traefik:
-    external: true
+  adguard_net:
+    driver: macvlan
+    driver_opts:
+      parent: ${ADGUARDHOME_MACVLAN_NETWORK_CARD}
+    ipam:
+      config:
+        - subnet: ${ADGUARDHOME_MACVLAN_SUBNET}
+          gateway: ${ADGUARDHOME_MACVLAN_GATEWAY}
+          ip_range: ${ADGUARDHOME_IPV4_ADDRESS}/32
