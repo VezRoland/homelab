@@ -19,7 +19,6 @@ services:
       - traefik.http.routers.vaultwarden.entrypoints=websecure
       - traefik.http.routers.vaultwarden.tls=true
       - traefik.http.routers.vaultwarden.tls.certresolver=cloudflare
-      - docker-volume-backup.stop-during-backup=true
 
 networks:
   traefik:

@@ -6,10 +6,6 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      - "80:80/tcp"
-      - "443:443/tcp"
-      - "443:443/udp"
-      - "3000:3000/tcp"
       - "853:853/tcp"
     volumes:
       - ./data/work:/opt/adguardhome/work
@@ -17,14 +13,20 @@ services:
     networks:
       adguard_net:
         ipv4_address: ${ADGUARDHOME_IPV4_ADDRESS}
+      traefik:
     labels:
       - traefik.enable=true
+      - traefik.docker.network=traefik
       - traefik.http.routers.adguardhome.rule=Host(`${ADGUARDHOME_HOSTNAME}`)
-      - traefik.http.routers.adguardhome.entrypoints=websecure
-      - traefik.http.routers.adguardhome.tls=true
-      - traefik.http.routers.adguardhome.tls.certresolver=cloudflare
+      - traefik.http.routers.adguardhome.middlewares=adguard-redirect
+      - traefik.http.middlewares.adguard-redirect.redirectscheme.scheme=https
+
+      - traefik.http.routers.adguardhome-secure.entrypoints=websecure
+      - traefik.http.routers.adguardhome-secure.rule=Host(`${ADGUARDHOME_HOSTNAME}`)
+      - traefik.http.routers.adguardhome-secure.service=adguardhome
+      - traefik.http.routers.adguardhome-secure.tls=true
+      - traefik.http.routers.adguardhome-secure.tls.certresolver=cloudflare
       - traefik.http.services.adguardhome.loadbalancer.server.port=80
-      - docker-volume-backup.stop-during-backup=true
 
 networks:
   adguard_net:
@@ -36,3 +38,5 @@ networks:
         - subnet: ${ADGUARDHOME_MACVLAN_SUBNET}
           gateway: ${ADGUARDHOME_MACVLAN_GATEWAY}
           ip_range: ${ADGUARDHOME_IPV4_ADDRESS}/32
+  traefik:
+    external: true

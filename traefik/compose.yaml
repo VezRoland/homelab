@@ -22,7 +22,6 @@ services:
       - traefik.http.routers.dashboard.tls.certresolver=cloudflare
       - traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_BASICAUTH_USERS}
       - traefik.http.routers.dashboard.middlewares=dashboard-auth@docker
-      - docker-volume-backup.stop-during-backup=true
     command:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
